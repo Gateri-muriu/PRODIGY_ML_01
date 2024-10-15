@@ -1,0 +1,88 @@
+#import library
+import pandas as pd
+
+#load dataset
+df = pd.read_csv('test_house_price.csv')
+df.head()
+
+#Dimension 
+df.shape
+
+#Data type of the dataset
+df.isnull().sum()
+
+#Total count of the missing values in the dataset
+df.isnull().sum().sum()
+
+#Data type of the test dataset
+df.info()
+
+#Drop the columns
+df.drop(['Id','Alley','PoolQC','Fence','MiscFeature'], axis = 1, inplace = True)
+
+#Replace the missing values
+df['MSZoning'] = df['MSZoning'].fillna(value=df['MSZoning'].mode()[0])
+
+df['LotFrontage'] = df['LotFrontage'].fillna(df['LotFrontage'].mean())
+
+df['Utilities'] = df['Utilities'].fillna(df['Utilities'].mode()[0])
+
+df['Exterior1st'] = df['Exterior1st'].fillna(df['Exterior1st'].mode()[0])
+
+df['Exterior2nd'] = df['Exterior2nd'].fillna(df['Exterior2nd'].mode()[0])
+
+df['MasVnrType'] = df['MasVnrType'].fillna(df['MasVnrType'].mode()[0])
+
+df['MasVnrArea'] = df['MasVnrArea'].fillna(df['MasVnrArea'].mean())
+
+df['BsmtQual'] = df['BsmtQual'].fillna(df['BsmtQual'].mode()[0])
+
+df['BsmtCond'] = df['BsmtCond'].fillna(df['BsmtCond'].mode()[0])
+
+df['BsmtExposure'] = df['BsmtExposure'].fillna(df['BsmtExposure'].mode()[0])
+
+df['BsmtFinType1'] = df['BsmtFinType1'].fillna(df['BsmtFinType1'].mode()[0])
+
+df['BsmtFinSF1'] =df['BsmtFinSF1'].fillna(df['BsmtFinSF1'].mean())
+
+df['BsmtFinType2'] = df['BsmtFinType2'].fillna(df['BsmtFinType2'].mode()[0])
+
+df['BsmtFinSF2'] = df['BsmtFinSF2'].fillna(df['BsmtFinSF2'].mean())
+
+df['BsmtUnfSF'] = df['BsmtUnfSF'].fillna(df['BsmtUnfSF'].mean())
+
+df['TotalBsmtSF'] = df['TotalBsmtSF'].fillna(df['TotalBsmtSF'].mean())
+
+df['BsmtFullBath'] = df['BsmtFullBath'].fillna(df['BsmtFullBath'].mean())
+
+df['BsmtHalfBath'] =df['BsmtHalfBath'].fillna(df['BsmtHalfBath'].mean())
+
+df['KitchenQual'] = df['KitchenQual'].fillna(df['KitchenQual'].mode()[0])
+
+df['Functional'] = df['Functional'].fillna(df['Functional'].mode()[0])
+
+df['FireplaceQu'] = df['FireplaceQu'].fillna(df['FireplaceQu'].mode()[0])
+
+df['GarageType'] =df['GarageType'].fillna(df['GarageType'].mode()[0])
+
+df['GarageYrBlt'] = df['GarageYrBlt'].fillna(df['GarageYrBlt'].mean())
+
+df['GarageFinish'] = df['GarageFinish'].fillna(df['GarageFinish'].mode()[0]) 
+
+df['GarageCars'] = df['GarageCars'].fillna(df['GarageCars'].mean())
+
+df['GarageArea'] = df['GarageArea'].fillna(df['GarageArea'].mean())
+
+df['GarageQual'] = df['GarageQual'].fillna(df['GarageQual'].mode()[0])
+
+df['GarageCond'] = df['GarageCond'].fillna(df['GarageCond'].mode()[0])
+
+df['SaleType'] = df['SaleType'].fillna(df['SaleType'].mode()[0])
+
+#Dataset dimension
+print('test size dataset: ', df.shape)
+
+#Total number of missing value
+df.isnull().sum().sum()
+
+df.to_csv('clean_test.csv', index = False)

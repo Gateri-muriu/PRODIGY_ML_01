@@ -1,0 +1,198 @@
+#Task-01
+
+#Implement a linear regression model to predict the prices of houses based on their square footage and the number of bedrooms and bathrooms.
+
+#Dataset : - https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data
+
+#import libraries
+import pandas as pd
+
+#load dataset
+df=pd.read_csv('train_house_price.csv')
+df.head()
+
+#Dimension of dataset
+df.shape
+
+#Data type of the dataset
+df.info()
+
+#Identify missing values
+df.isnull().sum()
+
+#Total number of missing values
+df.isnull().sum().sum()
+
+## Replace some columns missing values and drop some columns
+#fill the missing values
+df['LotFrontage'] = df['LotFrontage'].fillna(value=df['LotFrontage'].mean())
+
+#Drop column Id, alley, PoolQC, Fence, MiscFeature 
+df.drop(['Alley', 'PoolQC', 'Fence','MiscFeature', 'Id'], axis = 1, inplace=True)
+
+#fill the missing values
+df['MasVnrArea'] = df['MasVnrArea'].fillna(value=df['MasVnrArea'].mean())
+
+df['FireplaceQu']=df['FireplaceQu'].fillna(value=df['FireplaceQu'].mode()[0])
+
+df['GarageType ']=df['GarageType'].fillna(value=df['GarageType'].mode()[0])
+
+df['GarageYrBlt']=df['GarageYrBlt'].fillna(value=df['GarageYrBlt'].mean())
+
+df['GarageFinish']=df['GarageFinish'].fillna(value=df['GarageFinish'].mode()[0])
+
+df['GarageQual'] = df['GarageQual'].fillna(value=df['GarageQual'].mode()[0])
+
+df['GarageCond'] = df['GarageCond'].fillna(value=df['GarageCond'].mode()[0])
+
+df['MasVnrType'] = df['MasVnrType'].fillna(value=df['MasVnrType'].mode()[0])
+
+df['BsmtQual']=df['BsmtQual'].fillna(value=df['BsmtQual'].mode()[0])
+
+df['BsmtCond']=df['BsmtCond'].fillna(value=df['BsmtCond'].mode()[0])
+
+df['BsmtExposure']=df['BsmtExposure'].fillna(value=df['BsmtExposure'].mode()[0])
+
+df['BsmtFinType1'] = df['BsmtFinType1'].fillna(value=df['BsmtFinType1'].mode()[0])
+
+df['BsmtFinType2'] = df['BsmtFinType2'].fillna(value=df['BsmtFinType2'].mode()[0])
+
+df['Electrical'] = df['Electrical'].fillna(value=df['Electrical'].mode()[0])
+
+df['GarageType'] = df['GarageType'].fillna(value=df['GarageType'].mode()[0])
+
+#Total number of missing values
+df.isnull().sum().sum()
+
+print('train size dataset: ',df.shape)
+
+df.head()
+
+df.columns
+
+def category_multcols(multcolumns):
+    df_final=main_df
+    i=0
+    for fields in multcolumns:
+        
+        print(fields)
+        df1=pd.get_dummies(main_df[fields],drop_first=True)
+        
+        main_df.drop([fields],axis=1,inplace=True)
+        if i==0:
+            df_final=df1.copy()
+        else:
+            
+            df_final=pd.concat([df_final,df1],axis=1)
+        i=i+1
+       
+        
+    df_final=pd.concat([main_df,df_final],axis=1)
+        
+    return df_final
+
+copy_df = df.copy()
+
+#Test dataset
+test_df = pd.read_csv('clean_test.csv')
+test_df.head()
+
+#test size dimension
+test_df.shape
+
+main_df =pd.concat([df,test_df],axis=0)
+
+main_df['SalePrice']
+
+main_df.shape
+
+columns = main_df[['BsmtFinSF1','BsmtFinSF2','BsmtUnfSF','TotalBsmtSF','1stFlrSF','2ndFlrSF','GrLivArea','BsmtFullBath','BsmtHalfBath','FullBath','HalfBath','BedroomAbvGr','SalePrice']]
+
+main_df=category_multcols(columns)
+
+main_df.shape
+
+main_df =main_df.loc[:,~main_df.columns.duplicated()]
+
+main_df.shape
+
+Train=columns.iloc[:1422,:]
+Test=columns.iloc[1422:,:]
+
+Train.head()
+
+Test.head()
+
+Train.shape
+
+X=Train.drop('SalePrice',axis=1)
+y=Train.SalePrice
+
+#import libraries
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+
+x_train, x_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 42)
+
+print(x_train.shape, y_train.shape)
+print(x_test.shape, y_test.shape)
+
+reg = RandomForestRegressor(n_jobs=-1)
+
+reg.fit(x_train, y_train)
+
+#import libraries
+from sklearn.metrics import mean_absolute_error, r2_score, mean_squared_error
+import math
+
+#evaluate 
+reg.score(x_test, y_test)
+
+y_pred = reg.predict(x_test)
+
+print("R_squared: % .2f" %r2_score(y_test,y_pred ))
+print("Mean Absolute Error: %.2f" %mean_absolute_error(y_test, y_pred))
+print("Mean Squared Error: %.2f" %mean_squared_error(y_test, y_pred))
+print("Root Mean Squared Error: %.2f" %math.sqrt(mean_squared_error(y_test, y_pred)))
+
+import matplotlib.pyplot as plt
+plt.scatter(y_test, y_pred)
+plt.xlabel('Actual Values')
+plt.ylabel('Predicted Values')
+plt.title('Actual vs Predicted Values')
+plt.show()
+
+#Hyper parameter tuning
+from sklearn.model_selection import RandomizedSearchCV
+from scipy.stats import randint
+
+params = {
+    'n_estimators':randint(100,300),
+    'max_depth': [None, 10,20,30,40,50],
+    'min_samples_split':randint(2,11),
+    'min_samples_leaf':randint(1,5),
+    'max_features':[1.0, 'sqrt']
+}
+
+
+random_search = RandomizedSearchCV(estimator=reg, param_distributions=params, n_iter=2, cv=3, 
+                                   scoring='neg_mean_squared_error', verbose = 2, random_state=10, n_jobs=-1)
+
+random_search.fit(x_train, y_train)
+best_regressor = random_search.best_estimator_
+
+best_regressor.score(x_test, y_test)
+
+r_pred = best_regressor.predict(x_test)
+
+print("R_squared: % .2f" %r2_score(y_test,y_pred ))
+print("Mean Absolute Error: %.2f" %mean_absolute_error(y_test, y_pred))
+print("Mean Squared Error: %.2f" %mean_squared_error(y_test, y_pred))
+print("Root Mean Squared Error: %.2f" %math.sqrt(mean_squared_error(y_test, y_pred)))
+
+
+plt.scatter(y_test, r_pred)
+plt.xlabel('Actual Values')
+plt.ylabel('Predicted Values')
+plt.title('Actual vs Predicted Values')
+plt.show()
